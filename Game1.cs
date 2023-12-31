@@ -140,7 +140,6 @@ public class Game1 : Game {
             _indicesChanged = false;
         }
 
-
         _vertexBuffer.SetData(_vertices);
         GraphicsDevice.SetVertexBuffer(_vertexBuffer);
 
