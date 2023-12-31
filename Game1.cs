@@ -21,6 +21,9 @@ public class Game1 : Game {
     }
 
     protected override void LoadContent() {
+        _image = Content.Load<Texture2D>("image");
+        _firstShader = Content.Load<Effect>("first-shader");
+
         _vertices = new FirstVertex[_initialVertices];
         _indices = new uint[_initialIndices];
 
@@ -30,9 +33,6 @@ public class Game1 : Game {
 
         _indexBuffer = new IndexBuffer(GraphicsDevice, typeof(uint), _indices.Length, BufferUsage.WriteOnly);
         _indexBuffer.SetData(_indices);
-
-        _firstShader = Content.Load<Effect>("first-shader");
-        _image = Content.Load<Texture2D>("image");
     }
 
     protected override void Update(GameTime gameTime) {
@@ -169,7 +169,7 @@ public class Game1 : Game {
     }
 
     private void GenerateIndexArray() {
-        for (uint i = Floor(_fromIndex, 6, 6), j = Floor(_fromIndex, 6, 4); i < _indices.Length; i += 6, j += 4) {
+        for (uint i = _fromIndex, j = _fromVertex; i < _indices.Length; i += 6, j += 4) {
             _indices[i + 0] = j + 0;
             _indices[i + 1] = j + 1;
             _indices[i + 2] = j + 3;
@@ -177,16 +177,14 @@ public class Game1 : Game {
             _indices[i + 4] = j + 2;
             _indices[i + 5] = j + 3;
         }
-        _fromIndex = _indices.Length;
-    }
-
-    private uint Floor(int value, float div, uint mul) {
-        return (uint)MathF.Floor(value / div) * mul;
+        _fromIndex = (uint)_indices.Length;
+        _fromVertex = (uint)_vertices.Length;
     }
 
     private GraphicsDeviceManager _graphics;
-    private Effect _firstShader = null!;
+
     private Texture2D _image = null!;
+    private Effect _firstShader = null!;
 
     private const int _initialSprites = 2048;
     private const int _initialVertices = _initialSprites * 4;
@@ -208,5 +206,6 @@ public class Game1 : Game {
     private int _indexCount = 0;
 
     private bool _indicesChanged = false;
-    private int _fromIndex = 0;
+    private uint _fromIndex = 0;
+    private uint _fromVertex = 0;
 }
