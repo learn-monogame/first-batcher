@@ -31,8 +31,8 @@ public class Game1 : Game {
         _indexBuffer = new IndexBuffer(GraphicsDevice, typeof(uint), _indices.Length, BufferUsage.WriteOnly);
         _indexBuffer.SetData(_indices);
 
-        _effect = Content.Load<Effect>("first-shader");
-        _texture = Content.Load<Texture2D>("image");
+        _firstShader = Content.Load<Effect>("first-shader");
+        _image = Content.Load<Texture2D>("image");
     }
 
     protected override void Update(GameTime gameTime) {
@@ -46,32 +46,50 @@ public class Game1 : Game {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         Begin();
-        Draw(_texture, new Vector2(100f, 100f), Color.White);
-        Draw(_texture, new Vector2(200f, 300f), Color.White);
+        Draw(new Vector2(100f, 100f));
+        Draw(new Vector2(200f, 300f));
         End();
 
         base.Draw(gameTime);
     }
 
-    public void Begin(Matrix? view = null) {
+    public void Begin(Matrix? view = null, Texture2D? texture = null, SamplerState? sampler = null, Effect? effect = null) {
         if (view != null) {
             _view = view.Value;
         } else {
             _view = Matrix.Identity;
         }
 
+        if (texture != null) {
+            _texture = texture;
+        } else {
+            _texture = _image;
+        }
+
+        if (sampler != null) {
+            _sampler = sampler;
+        } else {
+            _sampler = SamplerState.LinearClamp;
+        }
+
+        if (effect != null) {
+            _effect = effect;
+        } else {
+            _effect = _firstShader;
+        }
+
         Viewport viewport = GraphicsDevice.Viewport;
         _projection = Matrix.CreateOrthographicOffCenter(viewport.X, viewport.Width, viewport.Height, viewport.Y, 0, 1);
     }
 
-    public void Draw(Texture2D texture, Vector2 xy, Color? color = null) {
+    public void Draw(Vector2 xy, Color? color = null) {
         EnsureSizeOrDouble(ref _vertices, _vertexCount + 4);
         _indicesChanged = EnsureSizeOrDouble(ref _indices, _indexCount + 6) || _indicesChanged;
 
         Vector2 topLeft = xy + new Vector2(0f, 0f);
-        Vector2 topRight = xy + new Vector2(texture.Width, 0f);
-        Vector2 bottomRight = xy + new Vector2(texture.Width, texture.Height);
-        Vector2 bottomLeft = xy + new Vector2(0f, texture.Height);
+        Vector2 topRight = xy + new Vector2(_texture.Width, 0f);
+        Vector2 bottomRight = xy + new Vector2(_texture.Width, _texture.Height);
+        Vector2 bottomLeft = xy + new Vector2(0f, _texture.Height);
 
         _vertices[_vertexCount + 0] = new FirstVertex(
             new Vector3(topLeft, 0f),
@@ -122,19 +140,20 @@ public class Game1 : Game {
             _indicesChanged = false;
         }
 
-        _effect.Parameters["view_projection"].SetValue(_view * _projection);
-        _effect.CurrentTechnique.Passes[0].Apply();
 
         _vertexBuffer.SetData(_vertices);
         GraphicsDevice.SetVertexBuffer(_vertexBuffer);
 
         GraphicsDevice.Indices = _indexBuffer;
 
+        _effect.Parameters["view_projection"].SetValue(_view * _projection);
         GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         GraphicsDevice.DepthStencilState = DepthStencilState.None;
         GraphicsDevice.BlendState = BlendState.AlphaBlend;
-
+        GraphicsDevice.SamplerStates[0] = _sampler;
         GraphicsDevice.Textures[0] = _texture;
+
+        _effect.CurrentTechnique.Passes[0].Apply();
         GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, _triangleCount);
 
         _triangleCount = 0;
@@ -167,12 +186,15 @@ public class Game1 : Game {
     }
 
     private GraphicsDeviceManager _graphics;
+    private Effect _firstShader = null!;
+    private Texture2D _image = null!;
 
     private const int _initialSprites = 2048;
     private const int _initialVertices = _initialSprites * 4;
     private const int _initialIndices = _initialSprites * 6;
 
     private Effect _effect = null!;
+    private SamplerState _sampler = null!;
     private Texture2D _texture = null!;
     private Matrix _view;
     private Matrix _projection;
