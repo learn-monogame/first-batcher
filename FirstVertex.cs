@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,10 +12,10 @@ public struct FirstVertex(Vector3 position, Vector2 textureCoordinate, Color col
     public Color Color = color;
     public static readonly VertexDeclaration VertexDeclaration;
 
-    VertexDeclaration IVertexType.VertexDeclaration => VertexDeclaration;
+    readonly VertexDeclaration IVertexType.VertexDeclaration => VertexDeclaration;
 
     public override readonly int GetHashCode() {
-        return System.HashCode.Combine(Position, TextureCoordinate, Color);
+        return HashCode.Combine(Position, TextureCoordinate, Color);
     }
 
     public override readonly string ToString() {
