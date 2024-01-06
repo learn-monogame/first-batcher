@@ -91,25 +91,27 @@ public class Game1 : Game {
         Vector2 bottomRight = xy + new Vector2(_texture.Width, _texture.Height);
         Vector2 bottomLeft = xy + new Vector2(0f, _texture.Height);
 
+        color ??= Color.White;
+
         _vertices[_vertexCount + 0] = new FirstVertex(
             new Vector3(topLeft, 0f),
             new Vector2(0f, 0f),
-            color ?? Color.White
+            color.Value
         );
         _vertices[_vertexCount + 1] = new FirstVertex(
             new Vector3(topRight, 0f),
             new Vector2(1f, 0f),
-            color ?? Color.White
+            color.Value
         );
         _vertices[_vertexCount + 2] = new FirstVertex(
             new Vector3(bottomRight, 0f),
             new Vector2(1f, 1f),
-            color ?? Color.White
+            color.Value
         );
         _vertices[_vertexCount + 3] = new FirstVertex(
             new Vector3(bottomLeft, 0f),
             new Vector2(0f, 1f),
-            color ?? Color.White
+            color.Value
         );
 
         _triangleCount += 2;
@@ -160,7 +162,7 @@ public class Game1 : Game {
         _indexCount = 0;
     }
 
-    private bool EnsureSizeOrDouble<T>(ref T[] array, int neededCapacity) {
+    private static bool EnsureSizeOrDouble<T>(ref T[] array, int neededCapacity) {
         if (array.Length < neededCapacity) {
             Array.Resize(ref array, array.Length * 2);
             return true;
