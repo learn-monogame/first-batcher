@@ -188,9 +188,9 @@ public class Game1 : Game {
     private Texture2D _image = null!;
     private Effect _firstShader = null!;
 
-    private const int _initialSprites = 2048;
-    private const int _initialVertices = _initialSprites * 4;
-    private const int _initialIndices = _initialSprites * 6;
+    private const int _initialQuads = 2048;
+    private const int _initialVertices = _initialQuads * 4;
+    private const int _initialIndices = _initialQuads * 6;
 
     private Effect _effect = null!;
     private SamplerState _sampler = null!;
