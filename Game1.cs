@@ -53,33 +53,14 @@ public class Game1 : Game {
         base.Draw(gameTime);
     }
 
-    public void Begin(Matrix? view = null, Texture2D? texture = null, SamplerState? sampler = null, Effect? effect = null) {
-        if (view != null) {
-            _view = view.Value;
-        } else {
-            _view = Matrix.Identity;
-        }
-
-        if (texture != null) {
-            _texture = texture;
-        } else {
-            _texture = _image;
-        }
-
-        if (sampler != null) {
-            _sampler = sampler;
-        } else {
-            _sampler = SamplerState.LinearClamp;
-        }
-
-        if (effect != null) {
-            _effect = effect;
-        } else {
-            _effect = _firstShader;
-        }
-
+    public void Begin(Texture2D? texture = null, Matrix? view = null, Matrix? projection = null, SamplerState? sampler = null, Effect? effect = null) {
         Viewport viewport = GraphicsDevice.Viewport;
-        _projection = Matrix.CreateOrthographicOffCenter(viewport.X, viewport.Width, viewport.Height, viewport.Y, 0, 1);
+
+        _texture = texture ?? _image;
+        _view = view ?? Matrix.Identity;
+        _projection = projection ?? Matrix.CreateOrthographicOffCenter(viewport.X, viewport.Width, viewport.Height, viewport.Y, 0, 1);
+        _sampler = sampler ?? SamplerState.LinearClamp;
+        _effect = effect ?? _firstShader;
     }
 
     public void Draw(Vector2 xy, Color? color = null) {
