@@ -53,14 +53,13 @@ public class Game1 : Game {
         base.Draw(gameTime);
     }
 
-    public void Begin(Texture2D? texture = null, Matrix? view = null, Matrix? projection = null, SamplerState? sampler = null, Effect? effect = null) {
+    public void Begin(Texture2D? texture = null, Matrix? view = null, Matrix? projection = null, SamplerState? sampler = null) {
         Viewport viewport = GraphicsDevice.Viewport;
 
         _texture = texture ?? _image;
         _view = view ?? Matrix.Identity;
         _projection = projection ?? Matrix.CreateOrthographicOffCenter(viewport.X, viewport.Width, viewport.Height, viewport.Y, 0, 1);
         _sampler = sampler ?? SamplerState.LinearClamp;
-        _effect = effect ?? _firstShader;
     }
 
     public void Draw(Vector2 xy, Color? color = null) {
@@ -101,12 +100,6 @@ public class Game1 : Game {
     }
 
     public void End() {
-        Flush();
-
-        // TODO: Restore old states like rasterizer, depth stencil, blend state?
-    }
-
-    private void Flush() {
         if (_triangleCount == 0) return;
 
         if (_indicesChanged) {
@@ -128,19 +121,21 @@ public class Game1 : Game {
 
         GraphicsDevice.Indices = _indexBuffer;
 
-        _effect.Parameters["view_projection"].SetValue(_view * _projection);
+        _firstShader.Parameters["view_projection"].SetValue(_view * _projection);
         GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         GraphicsDevice.DepthStencilState = DepthStencilState.None;
         GraphicsDevice.BlendState = BlendState.AlphaBlend;
         GraphicsDevice.SamplerStates[0] = _sampler;
         GraphicsDevice.Textures[0] = _texture;
 
-        _effect.CurrentTechnique.Passes[0].Apply();
+        _firstShader.CurrentTechnique.Passes[0].Apply();
         GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, _triangleCount);
 
         _triangleCount = 0;
         _vertexCount = 0;
         _indexCount = 0;
+
+        // TODO: Restore old states like rasterizer, depth stencil, blend state?
     }
 
     private static bool EnsureSizeOrDouble<T>(ref T[] array, int neededCapacity) {
@@ -173,7 +168,6 @@ public class Game1 : Game {
     private const int _initialVertices = _initialQuads * 4;
     private const int _initialIndices = _initialQuads * 6;
 
-    private Effect _effect = null!;
     private SamplerState _sampler = null!;
     private Texture2D _texture = null!;
     private Matrix _view;
