@@ -23,6 +23,7 @@ public class Game1 : Game {
     protected override void LoadContent() {
         _image = Content.Load<Texture2D>("image");
         _firstShader = Content.Load<Effect>("first-shader");
+        _viewProjection = _firstShader.Parameters["view_projection"];
 
         _vertices = new FirstVertex[_initialVertices];
         _indices = new uint[_initialIndices];
@@ -116,12 +117,12 @@ public class Game1 : Game {
             _indicesChanged = false;
         }
 
-        _vertexBuffer.SetData(_vertices);
+        _vertexBuffer.SetData(_vertices, 0, _vertexCount, SetDataOptions.Discard);
         GraphicsDevice.SetVertexBuffer(_vertexBuffer);
 
         GraphicsDevice.Indices = _indexBuffer;
 
-        _firstShader.Parameters["view_projection"].SetValue(_view * _projection);
+        _viewProjection.SetValue(_view * _projection);
         GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         GraphicsDevice.DepthStencilState = DepthStencilState.None;
         GraphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -165,6 +166,7 @@ public class Game1 : Game {
 
     private Texture2D _image = null!;
     private Effect _firstShader = null!;
+    private EffectParameter _viewProjection = null!;
 
     private const int _initialQuads = 2048;
     private const int _initialVertices = _initialQuads * 4;
